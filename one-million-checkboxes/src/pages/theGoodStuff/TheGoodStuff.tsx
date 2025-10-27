@@ -1,60 +1,52 @@
 import { useEffect, useId, useRef, useState } from "react";
 import styles from "./TheGoodStuff.module.scss";
+import usePositions from "./hooks/usePositions";
 
 const TheGoodStuff = () => {
-  const height = 40;
+  const childHeight = 30;
 
   const id = useId();
 
-  const [data, setData] = useState<boolean[]>(new Array(1_000).fill(false));
+  const [data, setData] = useState<boolean[]>(new Array(1_000_000).fill(false));
 
-  const ref = useRef<HTMLDivElement | null>(null);
+  const totlaHeight = data.length * childHeight;
+  const viewportHeight = window.innerHeight;
 
-  useEffect(() => {
-    const callback = (
-      entries: IntersectionObserverEntry[],
-      observer: IntersectionObserver
-    ) => {
-      console.log(entries);
-      console.log(observer);
-      const entry = entries[0];
-    };
+  const { divRef, scrollPosition, wrapperPosition, inView } =
+    usePositions(totlaHeight);
 
-    const observer = new IntersectionObserver(callback, {
-      root: document.getElementById(id),
-      rootMargin: "0px",
-      threshold: 1.0,
-    });
-
-    if (ref.current) observer.observe(ref.current);
-
-    return () => observer.disconnect();
-  }, []);
-
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const handleScroll = () => {
-    const position = window.pageYOffset;
-    setScrollPosition(position);
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const shiftStart = Math.floor(scrollPosition / childHeight);
+  const shiftEnd = Math.floor(viewportHeight / childHeight) + shiftStart + 10;
 
   return (
-    <div className={styles["wrapper"]} id={id}>
-      <p style={{ position: "fixed", top: 0 }}>{scrollPosition}</p>
-      {data.map((d, index) => (
+    <div
+      className={styles["wrapper"]}
+      style={{
+        height: totlaHeight,
+      }}
+      id={id}
+      ref={divRef}
+    >
+      <p style={{ position: "fixed", top: 0 }}>
+        {scrollPosition}
+        <br />
+        <span>wrapperPos.pageTop: {Math.round(wrapperPosition.pageTop)}</span>
+        <br />
+        <span>wrapperPos.pageLeft: {wrapperPosition.pageLeft}</span>
+      </p>
+
+      <div
+        style={{
+          height: shiftStart * childHeight,
+        }}
+      ></div>
+      {data.slice(shiftStart, shiftEnd).map((d, index) => (
         <Row
-          key={index}
-          height={height}
+          key={index + shiftStart}
+          height={childHeight}
           value={d}
           setData={setData}
-          index={index}
+          index={index + shiftStart}
         />
       ))}
     </div>
@@ -72,7 +64,12 @@ type RowProps = {
 
 const Row = ({ height, value, setData, index }: RowProps) => {
   return (
-    <label className={styles["row"]} style={{ height }}>
+    <label
+      className={[styles["row"], index % 2 && styles["odd"]]
+        .filter(Boolean)
+        .join(" ")}
+      style={{ height }}
+    >
       <input
         type="checkbox"
         checked={value}

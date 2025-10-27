@@ -12,7 +12,7 @@
 
     gap: 1em;
 
-    &:nth-child(odd) {
+    &.odd {
       background-color: rgba(0, 0, 0, 0.222);
     }
 

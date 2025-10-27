@@ -50,7 +50,6 @@ function Row({
 function App() {
   return (
     <>
-      <div style={{ padding: "100vh" }}></div>
       <TheGoodStuff />
     </>
   );
