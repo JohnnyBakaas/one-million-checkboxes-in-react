@@ -1,22 +1,62 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import styles from "./TheGoodStuff.module.scss";
 import usePositions from "./hooks/usePositions";
 
+// Some may say that this is bad to have in the same file,
+// I like to call it GitHub-friendly :)
+// Probably wouldn’t do this in prod though...
+
+const serializeData = (data: boolean[]) => {
+  // Don’t do this... it’s a bad idea, but it’s good enough for
+  // a quick “for fun” project.
+  // Storing this in character codes would be way more storage-efficient.
+  // Also IndexedDB, a real DB, or literally any form of optimization :)
+  let str = "";
+
+  for (let i = 0; i < data.length; i++) {
+    str += data[i] ? 1 : 0;
+  }
+
+  return str;
+};
+
+const deserializeData = (data: string | null) => {
+  if (!data) return new Array(1_000_000).fill(false);
+  const arr: boolean[] = new Array(data.length);
+
+  for (let i = 0; i < data.length; i++) {
+    arr[i] = !!Number(data[i]);
+  }
+
+  return arr;
+};
+
 const TheGoodStuff = () => {
   const childHeight = 40;
+  const elementPadding = 10;
 
   const id = useId();
 
-  const [data, setData] = useState<boolean[]>(new Array(1_000_000).fill(false));
+  const [data, setData] = useState<boolean[]>(
+    deserializeData(localStorage.getItem("milli"))
+  );
+
+  useEffect(() => {
+    const stringi = serializeData(data);
+    localStorage.setItem("milli", stringi);
+  }, [data]);
 
   const totlaHeight = data.length * childHeight;
   const viewportHeight = window.innerHeight;
 
-  const { divRef, scrollPosition, wrapperPosition, inView } =
-    usePositions(totlaHeight);
+  const { divRef, scrollPosition } = usePositions();
 
-  const shiftStart = Math.floor(scrollPosition / childHeight);
-  const shiftEnd = Math.floor(viewportHeight / childHeight) + shiftStart + 10;
+  const shiftStart = Math.max(
+    Math.floor(scrollPosition / childHeight) - elementPadding,
+    0
+  );
+  const shiftEnd =
+    Math.floor(viewportHeight / childHeight) + shiftStart + elementPadding;
 
   return (
     <div
@@ -27,16 +67,6 @@ const TheGoodStuff = () => {
       id={id}
       ref={divRef}
     >
-      <p style={{ position: "fixed", top: 0 }}>
-        {scrollPosition}
-        <br />
-        <span>wrapperPos.pageTop: {Math.round(wrapperPosition.pageTop)}</span>
-        <br />
-        <span>wrapperPos.pageLeft: {wrapperPosition.pageLeft}</span>
-        <br />
-        <span>shiftStart * childHeight: {shiftStart * childHeight}</span>
-      </p>
-
       <div
         style={{
           height: shiftStart * childHeight,
@@ -57,6 +87,7 @@ const TheGoodStuff = () => {
 
 export default TheGoodStuff;
 
+// "GitHub-friendly" :)
 type RowProps = {
   height: number;
   value: boolean;
