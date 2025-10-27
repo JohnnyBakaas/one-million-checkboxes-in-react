@@ -3,7 +3,7 @@ import styles from "./TheGoodStuff.module.scss";
 import usePositions from "./hooks/usePositions";
 
 const TheGoodStuff = () => {
-  const childHeight = 30;
+  const childHeight = 40;
 
   const id = useId();
 
@@ -33,6 +33,8 @@ const TheGoodStuff = () => {
         <span>wrapperPos.pageTop: {Math.round(wrapperPosition.pageTop)}</span>
         <br />
         <span>wrapperPos.pageLeft: {wrapperPosition.pageLeft}</span>
+        <br />
+        <span>shiftStart * childHeight: {shiftStart * childHeight}</span>
       </p>
 
       <div
