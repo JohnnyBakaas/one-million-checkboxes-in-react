@@ -56,7 +56,7 @@ const TheGoodStuff = () => {
     0
   );
   const shiftEnd =
-    Math.floor(viewportHeight / childHeight) + shiftStart + elementPadding;
+    Math.floor(viewportHeight / childHeight) + shiftStart + elementPadding * 2;
 
   return (
     <div
