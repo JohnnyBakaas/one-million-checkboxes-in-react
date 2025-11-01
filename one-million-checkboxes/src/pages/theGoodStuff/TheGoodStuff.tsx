@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./TheGoodStuff.module.scss";
 import usePositions from "./hooks/usePositions";
 
@@ -35,8 +35,6 @@ const TheGoodStuff = () => {
   const childHeight = 40;
   const elementPadding = 10;
 
-  const id = useId();
-
   const [data, setData] = useState<boolean[]>(
     deserializeData(localStorage.getItem("milli"))
   );
@@ -64,7 +62,6 @@ const TheGoodStuff = () => {
       style={{
         height: totlaHeight,
       }}
-      id={id}
       ref={divRef}
     >
       <div
